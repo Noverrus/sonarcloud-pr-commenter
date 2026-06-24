@@ -1,0 +1,62 @@
+name: SonarCloud Analysis & PR Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud-and-comment:
+    name: SonarCloud Analysis and PR Comment
+    runs-on: ubuntu-latest
+    # Prevents running on external forks, protecting secrets
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Fetch Metrics and Generate Markdown
+        id: generate-markdown
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PROJECT_KEY: 'your_project_key_here'
+        run: |
+          node scripts/sonar-metrics.js > sonar-report.md
+          
+      - name: Read Markdown File
+        id: read-md
+        run: |
+          echo "REPORT_CONTENT<<EOF" >> $GITHUB_ENV
+          cat sonar-report.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Find existing PR Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- sonarcloud-metrics-bot -->'
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- sonarcloud-metrics-bot -->
+            ${{ env.REPORT_CONTENT }}
+          edit-mode: replace
