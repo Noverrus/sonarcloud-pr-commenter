@@ -1,20 +1,30 @@
 {
   "name": "sonarcloud-human-pr-bot",
   "version": "1.0.0",
-  "description": "A GitHub Actions bot that fetches SonarCloud open issues and posts a human-readable summary on Pull Requests.",
-  "main": "scripts/sonar-issues.js",
+  "description": "A zero-dependency CLI bot that fetches SonarCloud open issues and posts a human-readable summary on Pull Requests.",
+  "main": "bin/bot.js",
+  "bin": {
+    "sonarcloud-human-pr-bot": "./bin/bot.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo 'Bot script template ready!'",
-    "build": "echo 'No build required for this bot script.'"
+    "start": "node bin/bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USERNAME/sonarcloud-human-pr-bot.git"
   },
   "keywords": [
     "github",
     "actions",
     "sonarcloud",
     "bot",
-    "pr"
+    "pr",
+    "cli"
   ],
-  "author": "",
-  "license": "MIT"
+  "author": "Nama Anda <email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/USERNAME/sonarcloud-human-pr-bot/issues"
+  },
+  "homepage": "https://github.com/USERNAME/sonarcloud-human-pr-bot#readme"
 }

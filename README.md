@@ -1,56 +1,64 @@
 # SonarCloud Human-Readable PR Bot
 
-A friendly, open-source GitHub Actions bot that fetches SonarCloud open issues and translates them into a conversational English summary on your internal Pull Requests.
+A friendly, zero-dependency CLI bot that fetches SonarCloud open issues and translates them into a conversational English summary on your internal Pull Requests.
 
-## Directory Structure
+You can run this directly in any GitHub Action workflow via `npx` without needing to copy-paste scripts into your repository!
 
-```text
-.
-├── .github/
-│   └── workflows/
-│       └── sonar-human-bot.yml   # The GitHub Actions Workflow
-├── scripts/
-│   └── sonar-issues.js           # Node.js Fetch & Templating Script
-├── package.json                  # Node.js configuration
-└── README.md                     # Documentation
+## Usage via GitHub Actions (NPX)
+
+To use this bot, you don't need to clone or install anything locally. Just add this step to your GitHub Actions workflow (`.github/workflows/sonar-bot.yml`):
+
+```yaml
+name: SonarCloud Human PR Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonar-bot:
+    runs-on: ubuntu-latest
+    # SECURITY: Prevent running on external forks to protect secrets
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    
+    steps:
+      - name: Wait for SonarCloud Analysis (Optional)
+        run: sleep 60
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Run PR Bot via NPX
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_KEY: 'your_project_key_here'
+        run: npx sonarcloud-human-pr-bot
 ```
 
-## 1. Environment Setup
+> **Note**: This CLI handles creating and updating the PR comment automatically using the GitHub API! No need for third-party comment actions.
 
-This bot uses the native `fetch` API available in Node.js 18+. Because the GitHub Action uses `setup-node@v4` with Node 20, **you do not need to install `axios` or any other external dependencies.**
+## Configuration & Secrets
 
-If you are adding this to an existing repository, no additional packages are required. If you are starting a fresh repository, initialize `package.json` by running:
+The bot relies on environment variables provided in the workflow:
 
-```bash
-npm init -y
-```
+- `SONAR_TOKEN`: Your SonarCloud token. Set this up in **GitHub Repository -> Settings -> Secrets and variables -> Actions**.
+- `GITHUB_TOKEN`: This is automatically provided by GitHub Actions (`${{ secrets.GITHUB_TOKEN }}`).
+- `PROJECT_KEY`: The key of your project in SonarCloud (e.g., `my-org_my-project`).
 
-> **Note:** No other `npm install` commands are needed! The script relies entirely on built-in modules.
+## Publishing to NPM
 
-## 2. Configuration & Secrets
+If you are the owner of this repository and want to publish it to the NPM registry so people can use `npx sonarcloud-human-pr-bot`, follow these steps:
 
-To keep your SonarCloud token secure, it must be added to GitHub Secrets, not hardcoded in the codebase. The workflow restricts execution to internal branches using the `if: github.event.pull_request.head.repo.full_name == github.repository` condition, protecting your token from being exposed to malicious external PRs.
+1. Create an account on [npmjs.com](https://www.npmjs.com/).
+2. Run `npm login` in your terminal.
+3. Run `npm publish`.
 
-### Setting up SONAR_TOKEN
+## Customizing the Bot's Vibe
 
-1. Go to **SonarCloud** -> **My Account** -> **Security** and generate a token.
-2. Go to your **GitHub Repository** -> **Settings** -> **Secrets and variables** -> **Actions**.
-3. Click **New repository secret**.
-4. Name: `SONAR_TOKEN`
-5. Paste the token value and save.
-
-## 3. Customizing the Bot's Vibe
-
-You can easily customize the English string templates inside `scripts/sonar-issues.js` to match your team's personality. 
-
-Look for the `markdown +=` lines inside the `fetchIssues()` function. For example, to make it more professional, change:
-
-```javascript
-"Hello! 👋 The SonarCloud bot has reviewed your code..."
-```
-
-to something like:
-
-```javascript
-"The automated SonarCloud analysis has completed..."
-```
+If you want to modify the message or bot's tone before publishing your own version:
+1. Open `bin/bot.js`.
+2. Look for the `markdown +=` lines.
+3. Edit the English templates to fit your team's personality!

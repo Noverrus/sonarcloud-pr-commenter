@@ -13,46 +13,19 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
+      # Optional: Wait for SonarCloud if running Automatic Analysis
+      - name: Wait for SonarCloud Analysis
+        run: sleep 60
+        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           
-      # If relying on Sonar Automatic Analysis, wait for it to finish.
-      # If you run analysis via CLI in this workflow, put that step here instead.
-      - name: Wait for SonarCloud Analysis
-        run: sleep 60
-          
-      - name: Fetch Issues and Generate Summary
-        id: generate-summary
+      - name: Run PR Bot via NPX
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_KEY: 'your_project_key_here'
-        run: |
-          node scripts/sonar-issues.js > sonar-summary.md
-          
-      - name: Read Markdown File
-        id: read-md
-        run: |
-          echo "REPORT_CONTENT<<EOF" >> $GITHUB_ENV
-          cat sonar-summary.md >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Find existing PR Comment
-        uses: peter-evans/find-comment@v3
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: '<!-- sonar-human-bot-comment -->'
-
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ env.REPORT_CONTENT }}
-          edit-mode: replace
+        # Runs the bot CLI directly from NPM
+        run: npx sonarcloud-human-pr-bot
