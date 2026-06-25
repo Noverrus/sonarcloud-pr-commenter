@@ -28,4 +28,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_KEY: 'your_project_key_here'
         # Runs the bot CLI directly from NPM
-        run: npx sonarcloud-human-pr-bot
+        run: npx sonarcloud-pr-commenter

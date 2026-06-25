@@ -1,30 +1,43 @@
 {
-  "name": "sonarcloud-human-pr-bot",
+  "name": "sonarcloud-pr-commenter",
   "version": "1.0.0",
-  "description": "A zero-dependency CLI bot that fetches SonarCloud open issues and posts a human-readable summary on Pull Requests.",
+  "description": "Generate and update human-readable GitHub Pull Request comments from SonarCloud issues.",
   "main": "bin/bot.js",
   "bin": {
-    "sonarcloud-human-pr-bot": "./bin/bot.js"
+    "sonarcloud-pr-commenter": "./bin/bot.js"
   },
   "scripts": {
-    "start": "node bin/bot.js"
+    "start": "node bin/bot.js",
+    "build": "echo 'No build required for this bot script.'"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/sonarcloud-human-pr-bot.git"
+    "url": "git+https://github.com/Noverrus/sonarcloud-pr-commenter.git"
   },
   "keywords": [
-    "github",
-    "actions",
     "sonarcloud",
-    "bot",
-    "pr",
-    "cli"
+    "github-actions",
+    "pull-request",
+    "comment",
+    "cli",
+    "automation",
+    "code-quality",
+    "sonarqube",
+    "github",
+    "markdown"
   ],
-  "author": "Nama Anda <email@example.com>",
+  "author": "Salman Fatahillah (Noverrus)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/USERNAME/sonarcloud-human-pr-bot/issues"
+    "url": "https://github.com/Noverrus/sonarcloud-pr-commenter/issues"
   },
-  "homepage": "https://github.com/USERNAME/sonarcloud-human-pr-bot#readme"
+  "homepage": "https://github.com/Noverrus/sonarcloud-pr-commenter#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ]
 }
